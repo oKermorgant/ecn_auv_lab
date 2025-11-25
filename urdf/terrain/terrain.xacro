@@ -21,12 +21,12 @@
     <static>true</static>
     <visual>
     <geometry>
-        <mesh filename="file://$(find ecn_auv_lab)/urdf/terrain/MangaliaTerrain.dae"  scale="1.0 1.0 5.0"/>
+        <mesh filename="package://ecn_auv_lab/urdf/terrain/MangaliaTerrain.dae"  scale="1.0 1.0 5.0"/>
       </geometry>
     </visual>
       <collision>
     <geometry>
-        <mesh filename="file://$(find ecn_auv_lab)/urdf/terrain/MangaliaTerrain.dae"  scale="1.0 1.0 5.0"/>
+        <mesh filename="package://ecn_auv_lab/urdf/terrain/MangaliaTerrain.dae"  scale="1.0 1.0 5.0"/>
       </geometry>
     </collision>
     <xacro:minert mass="0.5"/>

@@ -1,10 +1,13 @@
 # range of measurement error
 
 # X Y Z from USBL [m]
-usbl: 1.
+usbl: .3
+
+# sampling time [s] for USBL (up to 4 s in practice)
+usbl_period: 1.
 
 # Z from depth [m]
-depth: 0.3
+depth: 0.1
 
 # roll pitch yaw from IMU [deg]
 rpy: 2

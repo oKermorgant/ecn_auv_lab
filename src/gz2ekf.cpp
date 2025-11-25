@@ -31,6 +31,18 @@ struct Covariance
     const auto range{root[key].as<double>()};
     return range * range * 0.3;
   }
+
+  inline auto raw(const std::string &key) const
+  {
+    try
+    {
+    return root[key].as<double>();
+    }
+    catch(...)
+    {
+      return 0.1;
+    }
+  }
 };
 
 
@@ -42,7 +54,7 @@ struct ROVImu
   rclcpp::Node* node;
 
   ROVImu(rclcpp::Node* node, const std::string &name, const std::array<double, 3> &cov)
-    : pub{node->create_publisher<Imu>(name, 1)}, node{node}
+      : pub{node->create_publisher<Imu>(name, 1)}, node{node}
   {
     imu.header.frame_id = "bluerov2/" + name;
 
@@ -54,7 +66,7 @@ struct ROVImu
     }
 
     sub = node->create_subscription<Imu>(name+"_raw", 1, [&](Imu::UniquePtr msg)
-    {fwdImu(*msg);});
+                                         {fwdImu(*msg);});
   }
 
   inline void fwdImu(const Imu &msg)
@@ -75,17 +87,25 @@ struct ROVPose
   std::array<double,3> cov;
   rclcpp::Node* node;
 
-  ROVPose(rclcpp::Node* node, const std::string &topic, std::array<double,3> cov)
-    : pub{node->create_publisher<PoseWithCovarianceStamped>(topic, 1)},
+  ROVPose(rclcpp::Node* node, const std::string &topic,
+          std::array<double,3> cov,
+          double period)
+      : pub{node->create_publisher<PoseWithCovarianceStamped>(topic, 1)},
       cov{cov},
       node{node}
   {
     pose.header.frame_id = "world";
     for(auto i: {0,1,2})
       pose.pose.covariance[7*i] = cov[i];
+
+    static auto timer = node->create_wall_timer(
+        std::chrono::milliseconds((int)(period*1000)),[this]
+        {pose.header.stamp = this->node->get_clock()->now();
+          pub->publish(pose);}
+        );
   }
 
-  inline void fwdPose(const Pose &msg)
+  inline void registerPose(const Pose &msg)
   {
     static std::default_random_engine engine;
     static std::normal_distribution<double> noise;
@@ -93,8 +113,6 @@ struct ROVPose
     pose.pose.pose.position.x = msg.position.x + cov[0]*noise(engine);
     pose.pose.pose.position.y = msg.position.y + cov[1]*noise(engine);
     pose.pose.pose.position.z = msg.position.z + cov[2]*noise(engine);
-    pose.header.stamp = node->get_clock()->now();
-    pub->publish(pose);
   }
 };
 
@@ -116,17 +134,21 @@ public:
     static auto lsm{ROVImu(this, "lsm", {cov.from("rpy"),cov.from("w"),cov.from("a")})};
     static auto mpu{ROVImu(this, "mpu", {cov.from("rpy"),cov.from("w"),cov.from("a")})};
 
-    static auto usbl{ROVPose(this, "usbl", {cov.from("usbl"), cov.from("usbl"), cov.from("usbl")})};
-    static auto depth{ROVPose(this, "depth", {1000, 1000, cov.from("depth")})};
+    static auto usbl{ROVPose(this, "usbl",
+                             {cov.from("usbl"), cov.from("usbl"), cov.from("usbl")},
+                            cov.raw("usbl_period"))};
+    static auto depth{ROVPose(this, "depth",
+                              {1000, 1000, cov.from("depth")}
+                              , 0.1)};
 
     pose_pub = create_publisher<PoseStamped>("/bluerov2/pose_gt_stamped", 1);
     pose.header.frame_id = "world";
 
     static auto pose_sub = create_subscription<Pose>("pose_gt", 1, [&](Pose::UniquePtr msg)
-    {usbl.fwdPose(*msg);depth.fwdPose(*msg);
-    pose.pose = *msg;pose.header.stamp = get_clock()->now();
-    pose_pub->publish(pose);
-  });
+                                                     {usbl.registerPose(*msg);depth.registerPose(*msg);
+                                                       pose.pose = *msg;pose.header.stamp = get_clock()->now();
+                                                       pose_pub->publish(pose);
+                                                     });
   }
 
 private:

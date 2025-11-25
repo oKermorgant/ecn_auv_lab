@@ -9,6 +9,9 @@ def launch_setup():
                
     with sl.group(ns=ns):
 
+        # run sensor bridge
+        sl.node('ecn_auv_lab', 'gz2ekf')
+
         sl.node('robot_localization', 'ekf_node', name = 'ekf',
             parameters = [sl.find('ecn_auv_lab', 'ekf.yaml')],
             remappings = {'odometry/filtered': 'odom'})

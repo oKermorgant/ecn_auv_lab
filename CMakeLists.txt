@@ -8,6 +8,7 @@ ament_auto_find_build_dependencies()
 find_package(yaml-cpp)
 
 set(CMAKE_CXX_STANDARD 17)
+ament_environment_hooks("hooks/resource_paths.dsv.in")
 
 add_definitions(-DAUV_PARAMS="${CMAKE_CURRENT_SOURCE_DIR}/params/")
 
@@ -18,4 +19,4 @@ target_link_libraries(waypoints yaml-cpp)
 
 install(DIRECTORY urdf launch params DESTINATION share/${PROJECT_NAME})
 
-ament_auto_package()
+ament_auto_package(USE_SCOPED_HEADER_INSTALL_DIR)

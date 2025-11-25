@@ -50,8 +50,6 @@ def launch_setup():
         else:
             # otherwise publish ground truth as another link to get, well, ground truth
             sl.node('pose_to_tf',parameters={'child_frame': ns+'/base_link_gt'})
-            # run sensor bridge
-            sl.node('ecn_auv_lab', 'gz2ekf')
 
         sl.create_gz_bridge(bridges)
     
