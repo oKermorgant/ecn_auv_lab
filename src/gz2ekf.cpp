@@ -83,6 +83,7 @@ struct ROVImu
 struct ROVPose
 {
   rclcpp::Publisher<PoseWithCovarianceStamped>::SharedPtr pub;
+  rclcpp::TimerBase::SharedPtr timer;
   PoseWithCovarianceStamped pose;
   std::array<double,3> cov;
   rclcpp::Node* node;
@@ -98,7 +99,7 @@ struct ROVPose
     for(auto i: {0,1,2})
       pose.pose.covariance[7*i] = cov[i];
 
-    static auto timer = node->create_wall_timer(
+    timer = node->create_wall_timer(
         std::chrono::milliseconds((int)(period*1000)),[this]
         {pose.header.stamp = this->node->get_clock()->now();
           pub->publish(pose);}
