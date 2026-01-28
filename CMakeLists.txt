@@ -8,6 +8,7 @@ ament_auto_find_build_dependencies()
 find_package(yaml-cpp)
 
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_BUILD_TYPE Debug)
 ament_environment_hooks("hooks/resource_paths.dsv.in")
 
 add_definitions(-DAUV_PARAMS="${CMAKE_CURRENT_SOURCE_DIR}/params/")

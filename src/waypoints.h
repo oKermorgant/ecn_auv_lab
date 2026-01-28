@@ -7,8 +7,6 @@ struct Waypoint
 {
   double x, y, z, theta;
 
-
-
   inline static auto load(std::vector<Waypoint> &waypoints,
                           double &pose_thr,
                           double &orient_thr)
@@ -22,6 +20,8 @@ struct Waypoint
     pose_thr = root["threshold"].as<double>();
     orient_thr = root["threshold_angle"].as<double>();
 
+    waypoints.clear();
+    waypoints.reserve(root["wp"].size());
     for(auto &wp: root["wp"].as<std::vector<std::map<std::string, double>>>())
     {
       auto &last{waypoints.emplace_back()};
@@ -40,8 +40,5 @@ struct Waypoint
     pose.pose.orientation.z = sin(theta/2);
     pose.pose.orientation.w = cos(theta/2);
   }
-
-
-
 
 };

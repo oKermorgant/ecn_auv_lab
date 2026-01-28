@@ -1,11 +1,9 @@
 #include "waypoints.h"
 
 #include <rclcpp/rclcpp.hpp>
-#include <exception>
 #include <geometry_msgs/msg/pose_stamped.hpp>
 #include <tf2_ros/buffer.h>
 #include <tf2_ros/transform_listener.h>
-#include <yaml-cpp/yaml.h>
 
 using namespace geometry_msgs::msg;
 using namespace std::chrono_literals;
@@ -46,12 +44,16 @@ private:
 
   void trackWaypoint(const Transform &pose)
   {
-    static auto cur_wp{0};
+    static auto idx{0};
+    const auto &cur_wp{waypoints[idx]};
 
-    // TODO update cur_wp to cycle through the waypoints when the current one is reached
+    // TODO update 'idx' to cycle through the waypoints when the current one 'cur_wp' is reached
 
 
-    waypoints[cur_wp].write(pose_cmd);
+
+
+    // write new waypoint as msg and publish as reference pose
+    waypoints[idx].write(pose_cmd);
     pose_cmd.header.stamp = get_clock()->now();
     pub->publish(pose_cmd);
   }
