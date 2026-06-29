@@ -13,9 +13,9 @@
         two_d_mode: False
 
 #         estimation node from robot_localization! However, that instance should *not* fuse the global data.
-        odom_frame: world            # Defaults to "odom" if unspecified
+        odom_frame: world                    # Defaults to "odom" if unspecified
         base_link_frame: bluerov2/base_link  # Defaults to "base_link" if unspecified
-        world_frame: world           # Defaults to the value of odom_frame if unspecified
+        world_frame: world                   # Defaults to the value of odom_frame if unspecified
 
 # The filter accepts an arbitrary number of inputs from each input message type (nav_msgs/Odometry,
 # geometry_msgs/PoseWithCovarianceStamped, geometry_msgs/TwistWithCovarianceStamped,
